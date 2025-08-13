@@ -468,6 +468,15 @@ function uniq<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
 
+function formatNowYYYYMMDDHHmm(date: Date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${y}${m}${d}_${hh}${mm}`;
+}
+
 function downloadCSV(filename: string, rows: object[]) {
   const keys = uniq(rows.flatMap((r) => Object.keys(r)));
   const header = keys.join(",");
@@ -805,10 +814,12 @@ export default function KPIAlertDashboard() {
   // エクスポート
   function exportVisibleData() {
     const data = sortByDateAsc(viewRows).map((r) => ({ date: r.date, metric: r.metric, value: r.value }));
-    downloadCSV("visible_data.csv", data);
+    const ts = formatNowYYYYMMDDHHmm();
+    downloadCSV(`表示データ_${ts}.csv`, data);
   }
   function exportAnomalies() {
-    downloadCSV("anomalies.csv", anomalies);
+    const ts = formatNowYYYYMMDDHHmm();
+    downloadCSV(`異常一覧_${ts}.csv`, anomalies);
   }
 
 
