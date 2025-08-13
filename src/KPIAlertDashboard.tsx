@@ -518,6 +518,11 @@ export default function KPIAlertDashboard() {
   const [simulationSpeed, setSimulationSpeed] = useState<number>(2000);
   const [simulationData, setSimulationData] = useState<Row[]>([]);
 
+  // 手入力用
+  const [manualDate, setManualDate] = useState<string>(toYmd(new Date()));
+  const [manualMetric, setManualMetric] = useState<string>("");
+  const [manualValue, setManualValue] = useState<string>("");
+
   // ルール（方向と重大度を追加）
   const [rules, setRules] = useState<Rule[]>([
     { id: "r1", type: "zscore", window: 7, threshold: 2, direction: "both", severity: "warn", notify: true },
@@ -959,6 +964,58 @@ export default function KPIAlertDashboard() {
             </button>
             <button className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[100px]`} onClick={exportVisibleData}>
               表示データCSV
+            </button>
+          </div>
+        </div>
+
+        {/* 手入力フォーム */}
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-2">
+          <div>
+            <label className="text-xs text-gray-500">日付</label>
+            <input
+              type="date"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              value={manualDate}
+              onChange={(e) => setManualDate(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs text-gray-500">メトリクス</label>
+            <input
+              type="text"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              placeholder="例: 売上"
+              value={manualMetric}
+              onChange={(e) => setManualMetric(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500">値</label>
+            <input
+              type="number"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              value={manualValue}
+              onChange={(e) => setManualValue(e.target.value)}
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[80px]`}
+              onClick={() => {
+                const d = (manualDate || "").trim();
+                const m = (manualMetric || "").trim();
+                const v = Number(manualValue);
+                if (!d || !m || Number.isNaN(v)) {
+                  alert("日付・メトリクス・値を正しく入力してください");
+                  return;
+                }
+                const normalized = normalizeDate(d);
+                setRows((prev) => [...prev, { date: normalized, metric: m, value: v }]);
+                setManualMetric("");
+                setManualValue("");
+              }}
+            >
+              ＋ 追加
             </button>
           </div>
         </div>
