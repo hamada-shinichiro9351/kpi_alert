@@ -1,0 +1,25 @@
+{
+  "name": "KPIアラート・ダッシュボード",
+  "short_name": "KPI Dashboard",
+  "description": "CSVファイルをアップロードするだけで、自動的に異常検知とアラート条件をGUIで設定できるKPI監視ダッシュボード",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "ja",
+  "dir": "ltr"
+}
