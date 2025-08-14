@@ -545,7 +545,7 @@ export default function KPIAlertDashboard() {
   const [maWindow, setMaWindow] = useState<number>(3);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const [dateRangeDays, setDateRangeDays] = useState<number>(30);
-  const [accent, setAccent] = useState<"blue" | "emerald" | "violet" | "rose">("blue");
+  const accent: "violet" = "violet";
 
   // Webhook & 通知
   const [webhookUrl, setWebhookUrl] = useState<string>("");
@@ -579,7 +579,7 @@ export default function KPIAlertDashboard() {
         if (u.dateRangeDays !== undefined) setDateRangeDays(u.dateRangeDays);
         if (u.maEnabled !== undefined) setMaEnabled(u.maEnabled);
         if (u.maWindow !== undefined) setMaWindow(u.maWindow);
-        if (u.accent) setAccent(u.accent);
+        // テーマは紫固定のため設定を無視
         if (u.webhookUrl) setWebhookUrl(u.webhookUrl);
         if (u.autoNotify !== undefined) setAutoNotify(u.autoNotify);
       }
@@ -866,48 +866,18 @@ export default function KPIAlertDashboard() {
   }
 
 
-  // UI アクセント
-  const accentStyles = useMemo(
-    () => ({
-      blue: {
-        grad: "from-blue-500 to-indigo-500",
-        ring: "ring-blue-200",
-        border: "border-blue-200",
-        text: "text-blue-700",
-        badgeBg: "bg-blue-50",
-        button: "bg-blue-600 hover:bg-blue-700 text-white",
-        drop: "border-blue-400 bg-blue-50",
-      },
-      emerald: {
-        grad: "from-emerald-500 to-teal-500",
-        ring: "ring-emerald-200",
-        border: "border-emerald-200",
-        text: "text-emerald-700",
-        badgeBg: "bg-emerald-50",
-        button: "bg-emerald-600 hover:bg-emerald-700 text-white",
-        drop: "border-emerald-400 bg-emerald-50",
-      },
-      violet: {
-        grad: "from-violet-500 to-fuchsia-500",
-        ring: "ring-violet-200",
-        border: "border-violet-200",
-        text: "text-violet-700",
-        badgeBg: "bg-violet-50",
-        button: "bg-violet-600 hover:bg-violet-700 text-white",
-        drop: "border-violet-400 bg-violet-50",
-      },
-      rose: {
-        grad: "from-rose-500 to-orange-500",
-        ring: "ring-rose-200",
-        border: "border-rose-200",
-        text: "text-rose-700",
-        badgeBg: "bg-rose-50",
-        button: "bg-rose-600 hover:bg-rose-700 text-white",
-        drop: "border-rose-400 bg-rose-50",
-      },
-    }),
-    []
-  );
+  // UI アクセント - 紫テーマ固定
+  const accentStyles = {
+    violet: {
+      grad: "from-violet-500 to-fuchsia-500",
+      ring: "ring-violet-200",
+      border: "border-violet-200",
+      text: "text-violet-700",
+      badgeBg: "bg-violet-50",
+      button: "bg-violet-600 hover:bg-violet-700 text-white",
+      drop: "border-violet-400 bg-violet-50",
+    }
+  };
 
   const anomalyDots = useMemo(() => {
     const sel = selectedMetric === "ALL" ? null : selectedMetric;
@@ -1009,37 +979,7 @@ export default function KPIAlertDashboard() {
               </span>
             </motion.h1>
 
-            {/* theme selector */}
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="ml-2 hidden sm:flex items-center gap-1"
-            >
-              {(["blue", "emerald", "violet", "rose"] as const).map((c, index) => (
-                <motion.button
-                  key={c}
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 + index * 0.1, type: "spring", stiffness: 200 }}
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  aria-label={`theme-${c}`}
-                  onClick={() => setAccent(c)}
-                  className={`w-6 h-6 rounded-full border shadow-sm transition-all duration-300 ${
-                    accent === c ? "ring-2 ring-offset-2 " + accentStyles[accent].ring : ""
-                  } ${
-                    c === "blue"
-                      ? "bg-gradient-to-br from-blue-500 to-indigo-500"
-                      : c === "emerald"
-                      ? "bg-gradient-to-br from-emerald-500 to-teal-500"
-                      : c === "violet"
-                      ? "bg-gradient-to-br from-violet-500 to-fuchsia-500"
-                      : "bg-gradient-to-br from-rose-500 to-orange-500"
-                  }`}
-                />
-              ))}
-            </motion.div>
+
           </div>
         </div>
       </motion.header>
