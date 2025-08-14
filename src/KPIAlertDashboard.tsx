@@ -1,6 +1,6 @@
 // KPIAlertDashboard.tsx (practical edition)
 import React, { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import {
   LineChart,
   Line,
@@ -43,6 +43,44 @@ type Anomaly = {
 };
 
 type Granularity = "day" | "week" | "month";
+
+// =============================
+// アニメーション設定
+// =============================
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.5, ease: "easeOut" }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const scaleIn = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1 }
+};
+
+const pulseGlow = {
+  animate: {
+    boxShadow: [
+      "0 0 0 0 rgba(59, 130, 246, 0.4)",
+      "0 0 0 10px rgba(59, 130, 246, 0)",
+      "0 0 0 0 rgba(59, 130, 246, 0)"
+    ]
+  },
+  transition: {
+    duration: 2,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
 
 // =============================
 // デモデータ（試験運用用）
@@ -877,30 +915,118 @@ export default function KPIAlertDashboard() {
   }, [anomalies, selectedMetric]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-white to-white bg-grid" data-theme={accent}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 relative overflow-hidden" data-theme={accent}>
+      {/* パーティクル風背景 */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-20 left-10 w-2 h-2 bg-blue-400/20 rounded-full"
+        />
+        <motion.div
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 100, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-40 right-20 w-1 h-1 bg-indigo-400/30 rounded-full"
+        />
+        <motion.div
+          animate={{
+            x: [0, 60, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-purple-400/25 rounded-full"
+        />
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-10 glass border-b overflow-hidden">
-        <div className={`pointer-events-none absolute inset-0 -z-10 opacity-40 blur-3xl`}>
-          <div className={`absolute -top-16 -left-20 w-64 h-64 rounded-full bg-gradient-to-br ${accentStyles[accent].grad}`}></div>
-          <div className={`absolute -bottom-20 -right-16 w-64 h-64 rounded-full bg-gradient-to-br ${accentStyles[accent].grad} opacity-60`}></div>
+      <motion.header 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-white/20 shadow-lg"
+      >
+        <div className={`pointer-events-none absolute inset-0 -z-10 opacity-30 blur-3xl`}>
+          <motion.div 
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className={`absolute -top-16 -left-20 w-64 h-64 rounded-full bg-gradient-to-br ${accentStyles[accent].grad}`}
+          />
+          <motion.div 
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.6, 0.3, 0.6]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+            className={`absolute -bottom-20 -right-16 w-64 h-64 rounded-full bg-gradient-to-br ${accentStyles[accent].grad}`}
+          />
         </div>
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight whitespace-nowrap">
+            <motion.h1 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-xl sm:text-2xl font-semibold tracking-tight whitespace-nowrap"
+            >
               <span className="inline-flex items-center gap-2">
-                <span>📈</span>
+                <motion.span
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  📈
+                </motion.span>
                 <span className={`bg-gradient-to-r ${accentStyles[accent].grad} bg-clip-text text-transparent`}>KPIアラート・ダッシュボード</span>
               </span>
-            </h1>
+            </motion.h1>
 
             {/* theme selector */}
-            <div className="ml-2 hidden sm:flex items-center gap-1">
-              {(["blue", "emerald", "violet", "rose"] as const).map((c) => (
-                <button
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="ml-2 hidden sm:flex items-center gap-1"
+            >
+              {(["blue", "emerald", "violet", "rose"] as const).map((c, index) => (
+                <motion.button
                   key={c}
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 + index * 0.1, type: "spring", stiffness: 200 }}
+                  whileHover={{ scale: 1.2, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
                   aria-label={`theme-${c}`}
                   onClick={() => setAccent(c)}
-                  className={`w-6 h-6 rounded-full border shadow-sm hover:scale-105 transition ${
+                  className={`w-6 h-6 rounded-full border shadow-sm transition-all duration-300 ${
                     accent === c ? "ring-2 ring-offset-2 " + accentStyles[accent].ring : ""
                   } ${
                     c === "blue"
@@ -913,16 +1039,23 @@ export default function KPIAlertDashboard() {
                   }`}
                 />
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* CSV/Excel Upload Section - ヘッダーの真下に配置 */}
-      <div className="max-w-6xl mx-auto px-4 py-3 border-b bg-gray-50">
+      <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="max-w-6xl mx-auto px-4 py-3 border-b backdrop-blur-sm bg-white/60 shadow-sm"
+      >
         <div className="flex items-center justify-between gap-4">
-          <div
-            className={`relative px-4 py-2 rounded-xl border-2 border-dashed transition-colors inline-block ${
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`relative px-4 py-2 rounded-xl border-2 border-dashed transition-all duration-300 inline-block ${
               isDragOver ? accentStyles[accent].drop : "border-gray-300 hover:border-gray-400"
             }`}
             onDragOver={handleDragOver}
@@ -939,68 +1072,118 @@ export default function KPIAlertDashboard() {
                   if (f) onFileUpload(f);
                 }}
               />
-              📁 CSV/Excelをドラッグ&ドロップ またはクリックして選択
+              <motion.span
+                animate={{ x: [0, 2, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                📁 CSV/Excelをドラッグ&ドロップ またはクリックして選択
+              </motion.span>
             </label>
-          </div>
+          </motion.div>
           
-          <div className="flex items-center gap-2">
-            <button className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[80px]`} onClick={() => {
-              // シミュレーションモードを停止してからデモデータを読み込み
-              if (isSimulationMode) {
-                stopSimulation();
-              }
-              setRows(parseCSV(demoCSV));
-            }}>
+          <motion.div 
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="flex items-center gap-2"
+          >
+            <motion.button 
+              variants={scaleIn}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[80px] shadow-md hover:shadow-lg transition-all duration-300`} 
+              onClick={() => {
+                // シミュレーションモードを停止してからデモデータを読み込み
+                if (isSimulationMode) {
+                  stopSimulation();
+                }
+                setRows(parseCSV(demoCSV));
+              }}
+            >
               デモデータ
-            </button>
-            <button
-              className={`px-6 py-3 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[140px] ${isSimulationMode ? 'bg-red-600 hover:bg-red-700' : ''}`}
+            </motion.button>
+            <motion.button
+              variants={scaleIn}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-3 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[140px] shadow-md hover:shadow-lg transition-all duration-300 ${isSimulationMode ? 'bg-red-600 hover:bg-red-700' : ''}`}
               onClick={isSimulationMode ? stopSimulation : startSimulation}
             >
               {isSimulationMode ? '🛑 シミュレーション停止' : '▶️ リアルタイム体験'}
-            </button>
-            <button className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[100px]`} onClick={exportAnomalies}>
+            </motion.button>
+            <motion.button 
+              variants={scaleIn}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[100px] shadow-md hover:shadow-lg transition-all duration-300`} 
+              onClick={exportAnomalies}
+            >
               異常CSVを出力
-            </button>
-            <button className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[100px]`} onClick={exportVisibleData}>
+            </motion.button>
+            <motion.button 
+              variants={scaleIn}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[100px] shadow-md hover:shadow-lg transition-all duration-300`} 
+              onClick={exportVisibleData}
+            >
               表示データCSV
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
 
         {/* 手入力フォーム */}
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-2">
-          <div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-2"
+        >
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
             <label className="text-xs text-gray-500">日付</label>
             <input
               type="date"
-              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={manualDate}
               onChange={(e) => setManualDate(e.target.value)}
             />
-          </div>
-          <div className="sm:col-span-2">
+          </motion.div>
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+            className="sm:col-span-2"
+          >
             <label className="text-xs text-gray-500">メトリクス</label>
             <input
               type="text"
-              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="例: 売上"
               value={manualMetric}
               onChange={(e) => setManualMetric(e.target.value)}
             />
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
             <label className="text-xs text-gray-500">値</label>
             <input
               type="number"
-              className="w-full mt-1 px-2 py-1.5 border rounded-lg"
+              className="w-full mt-1 px-2 py-1.5 border rounded-lg transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={manualValue}
               onChange={(e) => setManualValue(e.target.value)}
             />
-          </div>
-          <div className="flex items-end">
+          </motion.div>
+          <motion.div 
+            className="flex items-end"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <button
-              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[80px]`}
+              className={`px-3 py-2 rounded-xl text-sm accent-button accent-focus whitespace-nowrap min-w-[80px] shadow-md hover:shadow-lg transition-all duration-300`}
               onClick={() => {
                 const d = (manualDate || "").trim();
                 const m = (manualMetric || "").trim();
@@ -1017,9 +1200,9 @@ export default function KPIAlertDashboard() {
             >
               ＋ 追加
             </button>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
 
       <main className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Chart & Highlights */}
